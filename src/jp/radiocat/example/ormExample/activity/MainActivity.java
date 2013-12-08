@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.*;
 import jp.radiocat.example.ormExample.R;
 import jp.radiocat.example.ormExample.entity.Word;
 import jp.radiocat.example.ormExample.model.WordModel;
@@ -19,7 +16,7 @@ public class MainActivity extends Activity {
 //	private ListView listView;
 //	private Button btnSubmit;
 
-	ArrayAdapter<String> adapter;
+	ArrayAdapter<Word> adapter;
 
 	/**
 	 * Called when the activity is first created.
@@ -29,17 +26,25 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+		adapter = new WordAdapter(MainActivity.this, R.layout.row);
 
 		// 登録されているWordを取得する
 		WordModel model = new WordModel(this);
 		for(Word word : model.findAll()) {
 			Log.d(TAG, String.format("id=%s,value=%s", word.getId(), word.getValue()));
-			adapter.add(word.getValue());
+			adapter.add(word);
 		}
 
 		ListView listView = (ListView) findViewById(R.id.list);
 		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Word item = (Word) parent.getItemAtPosition(position);
+				Log.d(TAG, String.format("selected position=%s,id=%s,value=%s",
+						position, item.getId(), item.getValue()));
+			}
+		});
 
 		Button btnSubmit = (Button) findViewById(R.id.btnSubmit);
 		btnSubmit.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +56,7 @@ public class MainActivity extends Activity {
 				model.save(word);
 				txtInput.setText("");
 
-				adapter.add(word.getValue());
+				adapter.add(word);
 				adapter.notifyDataSetChanged();
 			}
 		});

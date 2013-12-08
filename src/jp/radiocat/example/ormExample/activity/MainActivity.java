@@ -1,6 +1,8 @@
 package jp.radiocat.example.ormExample.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,17 +37,21 @@ public class MainActivity extends Activity {
 			adapter.add(word);
 		}
 
+		// wordテーブルに保存されている内容をListViewで表示する
 		ListView listView = (ListView) findViewById(R.id.list);
 		listView.setAdapter(adapter);
+		// ListViewの要素をクリックすると編集用のダイアログを表示する
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Word item = (Word) parent.getItemAtPosition(position);
 				Log.d(TAG, String.format("selected position=%s,id=%s,value=%s",
 						position, item.getId(), item.getValue()));
+				showUpdateDialog(item);
 			}
 		});
 
+		// 入力内容をwordテーブルに保存する
 		Button btnSubmit = (Button) findViewById(R.id.btnSubmit);
 		btnSubmit.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -60,5 +66,37 @@ public class MainActivity extends Activity {
 				adapter.notifyDataSetChanged();
 			}
 		});
+	}
+
+	/**
+	 * wordの編集ダイアログ
+	 * @param word 更新対象のword
+	 */
+	private void showUpdateDialog(final Word word){
+		// テキスト入力するViewを作成してwordの値を初期値に設定する
+		final EditText editText = new EditText(MainActivity.this);
+		editText.setText(word.getValue());
+		// AlertDialogにEditTextをセットする
+		new AlertDialog.Builder(MainActivity.this)
+				.setIcon(android.R.drawable.ic_dialog_info)
+				.setTitle("編集ダイアログ")
+						//setViewにてビューを設定します。
+				.setView(editText)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						word.setValue(editText.getText().toString());
+						WordModel model = new WordModel(getApplicationContext());
+						model.save(word);
+						Log.d(TAG, String.format("updated id=%s,value=%s",
+								word.getId(), word.getValue()));
+
+						adapter.notifyDataSetChanged();
+					}
+				})
+				.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+					}
+				})
+				.show();
 	}
 }

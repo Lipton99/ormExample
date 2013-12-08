@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 
 		// 登録されているWordを取得する
 		WordModel model = new WordModel(this);
-		for(Word word : model.findAll()) {
+		for (Word word : model.findAll()) {
 			Log.d(TAG, String.format("id=%s,value=%s", word.getId(), word.getValue()));
 			adapter.add(word);
 		}
@@ -45,9 +45,20 @@ public class MainActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Word item = (Word) parent.getItemAtPosition(position);
-				Log.d(TAG, String.format("selected position=%s,id=%s,value=%s",
+				Log.d(TAG, String.format("Normal selected position=%s,id=%s,value=%s",
 						position, item.getId(), item.getValue()));
 				showUpdateDialog(item);
+			}
+		});
+		//長押しした場合は削除用の確認ダイアログを表示する
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				Word item = (Word) parent.getItemAtPosition(position);
+				Log.d(TAG, String.format("Long selected position=%s,id=%s,value=%s",
+						position, item.getId(), item.getValue()));
+				showDeleteDialog(item);
+				return false;
 			}
 		});
 
@@ -70,9 +81,10 @@ public class MainActivity extends Activity {
 
 	/**
 	 * wordの編集ダイアログ
-	 * @param word 更新対象のword
+	 *
+	 * @param word 更新対象のエンティティ
 	 */
-	private void showUpdateDialog(final Word word){
+	private void showUpdateDialog(final Word word) {
 		// テキスト入力するViewを作成してwordの値を初期値に設定する
 		final EditText editText = new EditText(MainActivity.this);
 		editText.setText(word.getValue());
@@ -80,16 +92,15 @@ public class MainActivity extends Activity {
 		new AlertDialog.Builder(MainActivity.this)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setTitle("編集ダイアログ")
-						//setViewにてビューを設定します。
+				.setMessage("内容を変更してOKを押してください")
 				.setView(editText)
 				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						word.setValue(editText.getText().toString());
 						WordModel model = new WordModel(getApplicationContext());
 						model.save(word);
-						Log.d(TAG, String.format("updated id=%s,value=%s",
+						Log.d(TAG, String.format("Updated id=%s,value=%s",
 								word.getId(), word.getValue()));
-
 						adapter.notifyDataSetChanged();
 					}
 				})
@@ -99,4 +110,35 @@ public class MainActivity extends Activity {
 				})
 				.show();
 	}
+
+	/**
+	 * wordの削除確認ダイアログ
+	 * OKの場合はwordテーブルから削除します
+	 *
+	 * @param word 削除対象のエンティティ
+	 */
+	private void showDeleteDialog(final Word word) {
+		// AlertDialogにEditTextをセットする
+		new AlertDialog.Builder(MainActivity.this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle("削除ダイアログ")
+				.setMessage("削除していいですか？")
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						WordModel model = new WordModel(getApplicationContext());
+						model.delete(word);
+						Log.d(TAG, String.format("Deleted id=%s,value=%s",
+								word.getId(), word.getValue()));
+						// adapterからも削除してリストをリフレッシュする
+						adapter.remove(word);
+						adapter.notifyDataSetChanged();
+					}
+				})
+				.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+					}
+				})
+				.show();
+	}
+
 }

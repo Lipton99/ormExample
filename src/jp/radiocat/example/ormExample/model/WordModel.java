@@ -23,11 +23,31 @@ public class WordModel {
 		this.context = context;
 	}
 
+	/**
+	 * insert or updateする
+	 * @param word 対象のエンティティ
+	 */
 	public void save(Word word) {
 		DatabaseHelper helper = new DatabaseHelper(context);
 		try {
 			Dao<Word, Integer> dao = helper.getDao(Word.class);
 			dao.createOrUpdate(word);
+		} catch (Exception e) {
+			Log.e(TAG, "例外が発生しました", e);
+		} finally {
+			helper.close();
+		}
+	}
+
+	/**
+	 * deleteする
+	 * @param word 対象のエンティティ
+	 */
+	public void delete(Word word){
+		DatabaseHelper helper = new DatabaseHelper(context);
+		try {
+			Dao<Word, Integer> dao = helper.getDao(Word.class);
+			dao.delete(word);
 		} catch (Exception e) {
 			Log.e(TAG, "例外が発生しました", e);
 		} finally {

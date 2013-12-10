@@ -68,7 +68,12 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				EditText txtInput = (EditText) findViewById(R.id.value);
-				Word word = new Word(txtInput.getText().toString());
+				String value = txtInput.getText().toString();
+				if (value.isEmpty()) {
+					// 未入力のときは登録しないで処理を終わる
+					return;
+				}
+				Word word = new Word(value);
 				WordModel model = new WordModel(getApplicationContext());
 				model.save(word);
 				txtInput.setText("");

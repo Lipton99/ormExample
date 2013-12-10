@@ -9,9 +9,6 @@ import android.widget.TextView;
 import jp.radiocat.example.ormExample.R;
 import jp.radiocat.example.ormExample.entity.Word;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * jp.radiocat.example.ormExample.activity.
  * User: radiocat
@@ -19,8 +16,6 @@ import java.util.List;
  * Time: 17:55
  */
 public class WordAdapter extends ArrayAdapter<Word> {
-
-	private List<Word> wordList = new ArrayList<Word>();
 
 	private LayoutInflater inflater;
 
@@ -45,7 +40,7 @@ public class WordAdapter extends ArrayAdapter<Word> {
 		if (convertView == null) {
 			view = this.inflater.inflate(this.layoutId, null);
 		}
-		Word word = this.wordList.get(position);
+		Word word = super.getItem(position);
 
 		TextView txtWord = (TextView) view.findViewById(R.id.txtWord);
 		txtWord.setText(word.getValue());
@@ -55,6 +50,25 @@ public class WordAdapter extends ArrayAdapter<Word> {
 	@Override
 	public void add(Word obj) {
 		super.add(obj);
-		this.wordList.add(obj);
+	}
+
+	@Override
+	public void remove(Word word) {
+		this.remove(word.getId());
+	}
+
+	/**
+	 * 指定したidの要素を削除する
+	 *
+	 * @param id id
+	 */
+	public void remove(int id) {
+		for (int i = 0 ; i < super.getCount(); i++) {
+			Word word = getItem(i);
+			if (id == word.getId()) {
+				super.remove(word);
+				return ;
+			}
+		}
 	}
 }

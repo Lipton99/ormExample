@@ -25,6 +25,7 @@ public class WordModel {
 
 	/**
 	 * insert or updateする
+	 *
 	 * @param word 対象のエンティティ
 	 */
 	public void save(Word word) {
@@ -41,20 +42,28 @@ public class WordModel {
 
 	/**
 	 * deleteする
+	 *
 	 * @param word 対象のエンティティ
+	 * @return 削除件数
 	 */
-	public void delete(Word word){
+	public int delete(Word word) {
 		DatabaseHelper helper = new DatabaseHelper(context);
 		try {
 			Dao<Word, Integer> dao = helper.getDao(Word.class);
-			dao.delete(word);
+			return dao.delete(word);
 		} catch (Exception e) {
 			Log.e(TAG, "例外が発生しました", e);
 		} finally {
 			helper.close();
 		}
+		return 0;
 	}
 
+	/**
+	 * 全エンティティを取得する
+	 *
+	 * @return エンティティのリスト
+	 */
 	public List<Word> findAll() {
 		DatabaseHelper helper = new DatabaseHelper(context);
 		try {
@@ -67,4 +76,23 @@ public class WordModel {
 			helper.close();
 		}
 	}
+
+	/**
+	 * 全件を削除する
+	 *
+	 * @return 削除件数
+	 */
+	public int deleteAll() {
+		DatabaseHelper helper = new DatabaseHelper(context);
+		try {
+			Dao<Word, Integer> dao = helper.getDao(Word.class);
+			return dao.delete(findAll());
+		} catch (Exception e) {
+			Log.e(TAG, "例外が発生しました", e);
+		} finally {
+			helper.close();
+		}
+		return 0;
+	}
+
 }

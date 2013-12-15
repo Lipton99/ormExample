@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import jp.radiocat.example.ormExample.R;
@@ -17,6 +19,8 @@ public class MainActivity extends Activity {
 
 //	private ListView listView;
 //	private Button btnSubmit;
+
+	private final int MENU_ID_ALL_DELETE = Menu.FIRST + 1;
 
 	ArrayAdapter<Word> adapter;
 
@@ -83,6 +87,40 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(Menu.NONE, MENU_ID_ALL_DELETE, Menu.NONE, "全削除");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(MENU_ID_ALL_DELETE).setVisible(true);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case MENU_ID_ALL_DELETE:
+				WordModel model = new WordModel(getApplicationContext());
+				int deleteCount = model.deleteAll();
+				if (deleteCount > 0) {
+					adapter.clear();
+					adapter.notifyDataSetChanged();
+					Toast.makeText(
+							getApplicationContext(),
+							"All deleted.",
+							Toast.LENGTH_SHORT).show();
+				}
+				break;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
 
 	/**
 	 * wordの編集ダイアログ
